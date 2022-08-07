@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ChatApi</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-gH2yIJqKdNHPEq0n4Mqa/HGKIhSkIHeL5AyhkYV8i59U5AR6csBvApHHNl/vI1Bx" crossorigin="anonymous">
+    <link href="./styles/bootstrap.min.css" rel="stylesheet">
+    <link href="./styles/index.css" rel="stylesheet">
+</head>
+
+<body>
+    <div class="container">
+        <div id="listaContactos">
+            <ul class="">
+                
+            </ul>
+        </div>
+        <div id="chats" class="container-fluid row">
+            <div id="panelChat" class="row container">
+
+            </div>
+            <form id="inputs" class="col">
+                <input type="text" placeholder="Mensaje" id="mensaje"/>
+                <button type="submit">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-send" viewBox="0 0 16 16">
+                        <path d="M15.854.146a.5.5 0 0 1 .11.54l-5.819 14.547a.75.75 0 0 1-1.329.124l-3.178-4.995L.643 7.184a.75.75 0 0 1 .124-1.33L15.314.037a.5.5 0 0 1 .54.11ZM6.636 10.07l2.761 4.338L14.13 2.576 6.636 10.07Zm6.787-8.201L1.591 6.602l4.339 2.76 7.494-7.493Z"/>
+                      </svg>
+                </button>
+            </form>
+        </div>
+    </div>
+    
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-A3rJD856KowSb7dwlZdYEkO39Gagi7vIsF0jrRAoQmDKKtQBHUuLZ9AsSv4jD4Xa"
+        crossorigin="anonymous"></script>
+    <script src="./js/bootstrap.bundle.min.js"></script>
+    <script src="./js/axios.min.js"></script>
+    <script src="./js/sweetalert2.all.min.js"></script>
+    <script src="./js/routes.js"></script>
+    <script src="./js/utils.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+
+    <script>
+        /*
+            EVENTOS LOAD
+                Mostrar listas de contactos
+        */
+
+        var listas , reception = undefined
+        const socket = io();
+
+        /*
+            Socket Recivir Mensaje
+        */
+        socket.on('getMenssage',value=>{
+            let panelChat = document.getElementById('panelChat')
+            const {to,msg,date} = value
+            panelChat.innerHTML += `<div class=" items row false">
+                                                            <span>${msg}</span>
+                                                            <span class="dateMns">${date}</span>
+                                                        </div>`
+            panelChat.scrollTop = 100000000
+        })
+
+        //Cuando se conencta un usuario
+        socket.on('userConnect',user=>{
+            const id = `list_${user}`
+            console.log(id);
+            document.getElementById(id).classList.add('conecct')
+           
+        })
+
+        //Cuando se deconecta un usuario
+
+        socket.on('userDesconnect',user=>{
+            const id = `list_${user}`
+            console.log(id);
+            document.getElementById(id).classList.remove('conecct')
+           
+        })
+        /*
+            DOM
+        */
+        window.addEventListener('load',()=>{
+            const emisor = getCookie('cookie')
+            const listaUsuarios = document.querySelector('#listaContactos>ul')
+      
+            socket.emit('add-user',emisor)
+
+
+
+            axios.post(getAllUser,{
+                emisor
+            }).then(respons => {
+                const { data} = respons
+                data.map(key=>{
+                    listaUsuarios.innerHTML += `<li class='listas' id='list_${key.username}'>${key.username}</li>`
+                });
+
+                listas = document.querySelectorAll('.listas')
+                for (let index = 0; index < listas.length; index++) {
+                    let element = listas[index];
+                    element.addEventListener('click',(e)=>{
+                        const receptor = element.textContent
+                        reception = receptor
+                       getMessages(emisor,receptor)
+                    })
+                    
+                }
+
+            })
+            .catch(err => {
+                const { data } = err.response
+                Swal.fire({
+                    icon: 'error',
+                    title: data
+                })
+            })
+
+           
+        })
+
+
+        /*
+            Enviar un menasajeal usuario  conecctodo:
+            -- Eviar mensaje  a traves du una peticion post 
+            -- Enviar mensaje a trave de socket
+        */
+        document.getElementById('inputs').addEventListener('submit',(e)=>{
+            e.preventDefault()
+            const emisor = getCookie('cookie')
+            
+            if(reception !== undefined ){
+                const emisor = getCookie('cookie')
+                const mensaje = document.getElementById('mensaje').value
+                const receptor = reception
+                if(mensaje.length > 0) {
+                    addMessages(emisor,receptor,mensaje)
+                    addMonitors(emisor,receptor,mensaje)
+                 
+                }
+            }
+        })
+
+        /*
+            Funciones Andidadas
+        */
+        //Obtener todos los mensajes 
+        const getMessages = (emisor,receptor)=>{
+        
+            const panelChat = document.getElementById('panelChat')
+            
+            axios.post(getMensajes,{
+                            emisor,receptor
+                        }).then(respons =>{
+                            const {data} = respons
+                            panelChat.innerHTML = ""
+                            data.map(key=>{
+
+                                panelChat.innerHTML +=`<div class=" items row ${key.from ?'true':'false'}">
+                                                            <span>${key.message}</span>
+                                                            <span class="dateMns">${key.fecha}</span>
+                                                        </div>`
+                            })
+                            panelChat.scrollTop = 100000000
+                        }).catch(err=>{console.log(err)})
+        }
+   
+        //Agregar mensajes
+        const addMessages = (emisor,receptor,mensaje)=>{
+            const panelChat = document.getElementById('panelChat')
+            
+            axios.post(addMensajes,{
+                emisor,receptor,mensaje
+            }).then(respons =>{
+                const {updatedAt} = respons.data
+                panelChat.innerHTML += `<div class=" items row true">
+                                                            <span>${mensaje}</span>
+                                                            <span class="dateMns">${updatedAt}</span>
+                                                        </div>`
+                panelChat.scrollTop = 100000000
+                socket.emit('addMenssage',{
+                        to:receptor,
+                        msg:mensaje,
+                        date:updatedAt
+                    })
+            }).catch(err =>{
+                console.log(err);
+            })
+        }
+
+
+        //Monitorear emensaje
+        const addMonitors = (emisor,receptor,mensaje)=>{
+            axios.post(addMonitor,{
+                emisor,receptor,mensaje
+            }).then(respons =>{
+                const {data} = respons
+            }).catch(err =>{
+                console.log(err);
+            })
+        }
+
+
+    </script>
+</body>
+
+</html>
