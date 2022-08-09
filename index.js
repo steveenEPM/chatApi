@@ -57,9 +57,17 @@ io.on('connection',socket =>{
 
     console.log("sockect conectado");
 
+    setInterval(()=>{
+        const usuarios = []
+        for (const iterator of onlineUsers) {
+            usuarios.push(iterator[0])
+        }
+        socket.broadcast.emit('listConnect',usuarios)
+
+    },(15*1000))
+   
     socket.on('add-user', user =>{
         onlineUsers.set(user,socket.id)
-
         socket.broadcast.emit('userConnect',user)
 
         
@@ -68,10 +76,7 @@ io.on('connection',socket =>{
 
     socket.on('addMenssage',data =>{
         const {to, msg} = data
-        console.log(data);
         const sendSockect = onlineUsers.get(to)
-        console.log(to)
-        console.log(sendSockect);
         if(sendSockect){
                 socket.to(sendSockect).emit("getMenssage",data)
         }
@@ -82,8 +87,12 @@ io.on('connection',socket =>{
         for (const iterator of onlineUsers) {
             if(iterator[1] === socket.id){
                 socket.broadcast.emit('userDesconnect',iterator[0])
+                onlineUsers.delete(iterator[0])
+                
             }
         }
+        console.log(onlineUsers);
+
 
     });
 })

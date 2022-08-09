@@ -1,4 +1,4 @@
-const host = "http://192.168.56.1:3030"
+const host = "http://192.168.100.11:3030"
 const loing = `${host}/chatApi/auth/loing`
 
 const getAllUser = `${host}/chatApi/chat/getAllUser`
