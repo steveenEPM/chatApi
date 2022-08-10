@@ -36,6 +36,7 @@ ul{
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
+   
 }
 
 #chats{
@@ -71,6 +72,10 @@ ul{
     overflow-y: scroll;
 }
 
+
+#listaContactos{
+    overflow-y: scroll;
+}
 
 .items.row{
     width: 70%;
@@ -112,4 +117,8 @@ ul{
 
 .conecct{
     background-color: #b5ffb5;
+}
+
+body button{
+    background: red;
 }

@@ -38,10 +38,16 @@ api.get('/loing',(req,res)=>{
     res.sendFile(__dirname+'/view/loing.html');
 })
 
+api.get('/registro',(req,res)=>{
+    res.sendFile(__dirname+'/view/register.html');
+})
+
 api.get('/',Authn,(req,res)=>{
     res.sendFile(__dirname+'/view/index.html');
 })
 
+
+api.get('/monitor',(req,res)=> res.sendFile(__dirname+'/view/monitor.html'))
 databases()
 
 const server = api.listen(PORT,()=> console.log('Server UP'))
@@ -60,18 +66,18 @@ io.on('connection',socket =>{
     setInterval(()=>{
         const usuarios = []
         for (const iterator of onlineUsers) {
-            usuarios.push(iterator[0])
+            socket.broadcast.emit('listConnect',iterator[0])
         }
-        socket.broadcast.emit('listConnect',usuarios)
-
-    },(15*1000))
+        
+    },(5*1000))
    
     socket.on('add-user', user =>{
         onlineUsers.set(user,socket.id)
-        socket.broadcast.emit('userConnect',user)
+        socket.broadcast.emit('userConnect',user)        
+    })
 
-        
-      
+    socket.on('new_user_r',val =>{
+        socket.broadcast.emit('new_user_i',val)
     })
 
     socket.on('addMenssage',data =>{
@@ -91,8 +97,5 @@ io.on('connection',socket =>{
                 
             }
         }
-        console.log(onlineUsers);
-
-
     });
 })

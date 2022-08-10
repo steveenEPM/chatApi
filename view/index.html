@@ -35,7 +35,9 @@
             </form>
         </div>
     </div>
-
+    <button>
+        Salir
+    </button>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-A3rJD856KowSb7dwlZdYEkO39Gagi7vIsF0jrRAoQmDKKtQBHUuLZ9AsSv4jD4Xa"
@@ -46,7 +48,7 @@
     <script src="./js/routes.js"></script>
     <script src="./js/utils.js"></script>
     <script src="/socket.io/socket.io.js"></script>
-    
+
     <script>
         /*
             EVENTOS LOAD
@@ -79,7 +81,7 @@
         //Cuando se conencta un usuario
         socket.on('userConnect', user => {
             const id = `list_${user}`
-            document.getElementById(id).style.background='#b5ffb5'
+            document.getElementById(id).style.background = '#b5ffb5'
 
         })
 
@@ -91,18 +93,22 @@
             document.getElementById(id).style.background = '#ff7f7f'
 
         })
-     
-        socket.on('listConnect',user =>{
-            user.forEach(element => {
-                if(element){
-                    let id = `list_${element}`
-                    document.getElementById(id).style.background='#b5ffb5'
-                    console.log(id);
 
-                }
-            });
+        socket.on('listConnect', user => {
+            let id = `list_${user}`
+            try {
+                document.getElementById(id).style.background = '#b5ffb5'
+           
+            } catch (error) {
+                
+            }
         })
-     
+
+        socket.on('new_user_i', val =>{
+            console.log(val);
+            const listaUsuarios = document.querySelector('#listaContactos>ul')
+            listaUsuarios.innerHTML += `<li class='listas' id='list_${val}'>${val}</li>`
+        })
         /*
             DOM
         */
@@ -111,9 +117,9 @@
             const listaUsuarios = document.querySelector('#listaContactos>ul')
 
             socket.emit('add-user', emisor)
-          
 
-            
+
+
 
 
             axios.post(getAllUser, {

@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro</title>
+    <!-- CSS only -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-gH2yIJqKdNHPEq0n4Mqa/HGKIhSkIHeL5AyhkYV8i59U5AR6csBvApHHNl/vI1Bx" crossorigin="anonymous">
+    <link href="./styles/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        * {
+            margin: 0%;
+            padding: 0%;
+            font-size: 15px;
+            font-family: Georgia, 'Times New Roman', Times, serif;
+        }
+
+        body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding-top: 10%;
+            background-color: #360153;
+
+        }
+
+
+        h1 {
+            font-size: 44px;
+        }
+
+        strong {
+            font-size: 19px;
+        }
+
+        form {
+            width: 45%;
+            height: 700%;
+            padding: 2%;
+            border: 1px solid;
+            display: flex;
+            align-items: center;
+            flex-direction: column;
+            border-radius: 12px;
+            background-color: white;
+            color: #360153;
+            box-shadow: 0px 0px 22px #600028,
+                0px 0px 22px #600028,
+                0px 0px 22px #600028;
+        }
+
+        .mb-3 {
+            width: 80%;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+
+        }
+
+        button {}
+    </style>
+
+
+</head>
+
+<body>
+    <form>
+        <h1>Registrate Aqui</h1>
+        <div class="mb-3">
+            <strong for="username" class="form-label">Usuario</strong>
+            <input type="text" class="form-control" id="username" aria-describedby="emailHelp" name="username" required>
+        </div>
+        <div class="mb-3">
+            <strong for="password" class="form-label">Password</strong>
+            <input type="password" class="form-control" id="password" required>
+        </div>
+        <button type="submit" class="btn btn-primary"
+            style=" background-color: #600028; border: none; font-weight: bold;">Aceptar</button>
+    </form>
+
+   
+   
+    <!-- JavaScript Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-A3rJD856KowSb7dwlZdYEkO39Gagi7vIsF0jrRAoQmDKKtQBHUuLZ9AsSv4jD4Xa"
+        crossorigin="anonymous"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="./js/bootstrap.bundle.min.js"></script>
+    <script src="./js/axios.min.js"></script>
+    <script src="./js/sweetalert2.all.min.js"></script>
+    
+    <script src="./js/routes.js"></script>
+    <script src="./js/utils.js"></script>
+   
+   
+   <script>
+        const socket = io()
+
+        document.querySelector('form').addEventListener('submit', (e) => {
+            e.preventDefault()
+            const username = document.getElementById('username').value
+            const password = document.getElementById('password').value
+            axios.post(registro, {
+                username, password
+            }).then(respons => {
+                socket.emit('new_user_r',username)
+                window.location.href="/loing"
+            }).catch(err => {
+                const { data } = err.response
+                console.log(data);
+                Swal.fire({
+                    icon: 'error',
+                    title: data
+                })
+            })
+        })
+    </script>
+
+</body>
+
+</html>
