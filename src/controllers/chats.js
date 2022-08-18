@@ -5,6 +5,7 @@ const modelMonitor = require('../model/modelMonitor')
 module.exports.getAllUser = async (req, res) => {
     try {
         const { emisor } = req.body
+        console.log(req.cookies);
         const users = await modelUser.find({ username: {$ne:emisor} }).select([
             "_id",
             "username"

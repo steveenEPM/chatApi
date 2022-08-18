@@ -42,7 +42,7 @@ module.exports.Loing = async (req, res) => {
 
 module.exports.Authn=(req,res,next)=>{
     if(req.cookies){
-        if(req.cookies.cookie){
+        if(req.cookies.galleta){
             return next()
         }
         else{

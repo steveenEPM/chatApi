@@ -52,7 +52,7 @@ ul{
     margin-bottom: 5%;
     padding: 4%;
     font-size: 20px;
-    width: 140%;
+    width: 107%;
     transform: translateX(-25px);
     padding: 5% 12%;
     border:2px solid #360153;
@@ -75,6 +75,7 @@ ul{
 
 #listaContactos{
     overflow-y: scroll;
+    width: 20%;
 }
 
 .items.row{
@@ -121,4 +122,14 @@ ul{
 
 body button{
     background: red;
+}
+
+#salir{
+    position:absolute;
+    top: 1%;
+    left: 92%;
+    width: 6%;
+    height: 8%;
+    border-radius: 100px;
+    background-color: #eb0606;
 }
